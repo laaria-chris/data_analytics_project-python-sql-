@@ -35,3 +35,19 @@ FROM (
 ) AS cte
 GROUP BY order_month
 ORDER BY order_month;
+
+
+--which sub category had highest growth by profit in 2023 compare to 2022
+SELECT *
+FROM (
+    SELECT *,
+           ROW_NUMBER() OVER (PARTITION BY category ORDER BY sales DESC) AS rn
+    FROM (
+        SELECT category,
+               DATE_FORMAT(order_date, '%Y%m') AS order_year_month,
+               SUM(sale_price) AS sales
+        FROM `Order_Info`
+        GROUP BY category, DATE_FORMAT(order_date, '%Y%m')
+    ) AS cte
+) AS a
+WHERE rn = 1;
