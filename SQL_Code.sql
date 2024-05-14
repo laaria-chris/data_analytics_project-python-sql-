@@ -51,3 +51,24 @@ FROM (
     ) AS cte
 ) AS a
 WHERE rn = 1;
+
+
+--which sub category had highest growth by profit in 2023 compare to 2022
+SELECT *,
+       (sales_2023 - sales_2022) AS profit_growth
+FROM (
+    SELECT sub_category,
+           SUM(CASE WHEN order_year = 2022 THEN sales ELSE 0 END) AS sales_2022,
+           SUM(CASE WHEN order_year = 2023 THEN sales ELSE 0 END) AS sales_2023
+    FROM (
+        SELECT sub_category,
+               YEAR(order_date) AS order_year,
+               SUM(sale_price) AS sales
+        FROM `Order_Info`
+        GROUP BY sub_category, YEAR(order_date)
+    ) AS cte
+    GROUP BY sub_category
+) AS cte2
+ORDER BY profit_growth DESC
+LIMIT 1;
+
